@@ -49,7 +49,8 @@ def parser_add_arguments(parser):
 """ This function will run AFTER argument parsing """
 @hookimpl
 def load_plugin(args):
-    import kube_hunter_your_plugin_implementation
+    # You can either put your implementation directly here, or:
+    import your_plugin_implementation # file
 ```
 
 Optional plugin types:
@@ -57,4 +58,12 @@ Optional plugin types:
 | --- | -- | -- | 
 | Additional Argument | parser_add_arguments | Adding an additional argument to the cli
 | Generic Plugin      | load_plugin | Registering hunters / Defining new events 
+
+### 3. Install
+Install the plugin 
+```bash
+pip install .
+```
+
+
 -----
