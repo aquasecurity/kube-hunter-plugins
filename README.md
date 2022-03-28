@@ -1,6 +1,6 @@
 # kube-hunter-plugins
 The following repo contains an official collection of kube-hunter plugins.
-As well as documentations for how to create one yourselves.
+As well as documentation for how to create one yourselves.
 
 ## Intro
 Due to the pluggable mechanism in kube-hunter (provided by the [pluggy package](https://pluggy.readthedocs.io/en/stable/))  
