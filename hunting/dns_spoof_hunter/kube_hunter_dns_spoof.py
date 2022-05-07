@@ -1,40 +1,41 @@
 import logging
 
 from kube_hunter.plugins import hookimpl
-
+from kube_hunter.core.events.types import Event, Vulnerability
+from kube_hunter.core.types import KubernetesCluster, CoreDNSPoisoningTechnique
+    
 logging.getLogger("scapy.runtime").setLevel(logging.CRITICAL)
 logging.getLogger("scapy.loading").setLevel(logging.CRITICAL)
+
+class PossibleDnsSpoofing(Vulnerability, Event):
+    """A malicious pod running on the cluster could potentially run a DNS Spoof attack
+    and perform a MITM attack on applications running in the cluster."""
+
+    def __init__(self, kubedns_pod_ip):
+        Vulnerability.__init__(
+            self,
+            KubernetesCluster,
+            "Possible DNS Spoof",
+            category=CoreDNSPoisoningTechnique,
+            vid="KHV030",
+        )
+        self.kubedns_pod_ip = kubedns_pod_ip
+        self.evidence = f"kube-dns at: {self.kubedns_pod_ip}"
+
+
 
 @hookimpl
 def load_plugin(args):
     import re
-    import logging
 
     from scapy.all import IP, ICMP, UDP, DNS, DNSQR, ARP, Ether, sr1, srp1, srp
 
     from kube_hunter.conf import get_config
     from kube_hunter.core.events import handler
-    from kube_hunter.core.events.types import Event, Vulnerability
-    from kube_hunter.core.types import ActiveHunter, KubernetesCluster, CoreDNSPoisoningTechnique
+    from kube_hunter.core.types import ActiveHunter
     from kube_hunter_arp_spoof import PossibleArpSpoofing
 
     logger = logging.getLogger(__name__)
-
-
-    class PossibleDnsSpoofing(Vulnerability, Event):
-        """A malicious pod running on the cluster could potentially run a DNS Spoof attack
-        and perform a MITM attack on applications running in the cluster."""
-
-        def __init__(self, kubedns_pod_ip):
-            Vulnerability.__init__(
-                self,
-                KubernetesCluster,
-                "Possible DNS Spoof",
-                category=CoreDNSPoisoningTechnique,
-                vid="KHV030",
-            )
-            self.kubedns_pod_ip = kubedns_pod_ip
-            self.evidence = f"kube-dns at: {self.kubedns_pod_ip}"
 
 
     # Only triggered with RunningAsPod base event

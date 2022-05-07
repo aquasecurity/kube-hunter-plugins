@@ -1,38 +1,37 @@
 import logging
 
 from kube_hunter.plugins import hookimpl
+from kube_hunter.core.types import KubernetesCluster, ARPPoisoningTechnique
+from kube_hunter.core.events.types import Event, Vulnerability
 
 logging.getLogger("scapy.runtime").setLevel(logging.CRITICAL)
 logging.getLogger("scapy.loading").setLevel(logging.CRITICAL)
 
+
+class PossibleArpSpoofing(Vulnerability, Event):
+    """A malicious pod running on the cluster could potentially run an ARP Spoof attack
+    and perform a MITM between pods on the node."""
+
+    def __init__(self):
+        Vulnerability.__init__(
+            self,
+            KubernetesCluster,
+            "Possible Arp Spoof",
+            category=ARPPoisoningTechnique,
+            vid="KHV020",
+        )
+
+
 @hookimpl
 def load_plugin(args):
-    import logging
-
     from scapy.all import ARP, IP, ICMP, Ether, sr1, srp
 
     from kube_hunter.conf import get_config
     from kube_hunter.core.events import handler
-    from kube_hunter.core.events.types import Event, Vulnerability
-    from kube_hunter.core.types import ActiveHunter, KubernetesCluster, ARPPoisoningTechnique
+    from kube_hunter.core.types import ActiveHunter
     from kube_hunter.modules.hunting.capabilities import CapNetRawEnabled
 
     logger = logging.getLogger(__name__)
-
-
-    class PossibleArpSpoofing(Vulnerability, Event):
-        """A malicious pod running on the cluster could potentially run an ARP Spoof attack
-        and perform a MITM between pods on the node."""
-
-        def __init__(self):
-            Vulnerability.__init__(
-                self,
-                KubernetesCluster,
-                "Possible Arp Spoof",
-                category=ARPPoisoningTechnique,
-                vid="KHV020",
-            )
-
 
     @handler.subscribe(CapNetRawEnabled)
     class ArpSpoofHunter(ActiveHunter):
