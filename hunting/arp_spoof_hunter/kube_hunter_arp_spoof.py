@@ -27,7 +27,7 @@ def load_plugin(args):
     from scapy.all import ARP, IP, ICMP, Ether, sr1, srp
 
     from kube_hunter.conf import get_config
-    from kube_hunter.core.events import handler
+    from kube_hunter.core.events.event_handler import handler
     from kube_hunter.core.types import ActiveHunter
     from kube_hunter.modules.hunting.capabilities import CapNetRawEnabled
 
